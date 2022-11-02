@@ -1,0 +1,13 @@
+            До изменений            Убрал обёртки           Убрал сохранение в коллекцию
+2m              -                           -               OutOfMemoryError
+3m              -                           -               msec:644, sec:0
+10m             -                           -               msec:634, sec:0
+50m             -                           -               msec:637, sec:0
+192m            -                   OutOfMemoryError        msec:633, sec:0
+193m            -                   msec:3526, sec:3
+200m            -                   msec:3492, sec:3
+265m        OutOfMemoryError        msec:2811, sec:2
+259m        msec:13157, sec:13      msec:2200, sec:2
+270m        msec:11712, sec:11      msec:2197, sec:2
+300m        msec:10901, sec:10      msec:2320, sec:2
+2g          msec:9348, sec:9        msec:1745, sec:1
