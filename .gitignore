@@ -37,3 +37,4 @@ out
 *.ipr
 *.idea
 
+/hw08-gc/logs/
