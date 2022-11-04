@@ -10,4 +10,8 @@
 259m        msec:13157, sec:13      msec:2200, sec:2
 270m        msec:11712, sec:11      msec:2197, sec:2
 300m        msec:10901, sec:10      msec:2320, sec:2
+512m        msec:9949, sec:9
+700m        msec:9857, sec:9
+800m        msec:9345, sec:9
+1g          msec:9272, sec:9d
 2g          msec:9348, sec:9        msec:1745, sec:1
