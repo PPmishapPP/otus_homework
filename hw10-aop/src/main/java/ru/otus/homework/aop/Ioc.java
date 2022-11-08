@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,8 +13,8 @@ class Ioc {
     private Ioc() {
     }
 
-    static TestLoggingInterface createTestLogging() {
-        InvocationHandler handler = new LoggingInvocationHandler(new TestLogging());
+    static TestLoggingInterface createTestLogging(TestLoggingInterface original) {
+        InvocationHandler handler = new LoggingInvocationHandler(original);
         return (TestLoggingInterface) Proxy.newProxyInstance(
                 Ioc.class.getClassLoader(),
                 new Class<?>[]{TestLoggingInterface.class},
@@ -23,32 +24,47 @@ class Ioc {
 
     static class LoggingInvocationHandler implements InvocationHandler {
 
-        private final TestLogging original;
+        private final TestLoggingInterface original;
+        private final Set<MethodKey> annotationMethods;
 
-        private final Set<String> methods;
-
-        public LoggingInvocationHandler(TestLogging original) {
+        public LoggingInvocationHandler(TestLoggingInterface original) {
             this.original = original;
-
-            methods = Arrays.stream(original.getClass().getDeclaredMethods())
+            annotationMethods = Arrays.stream(original.getClass().getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(Log.class))
-                    .map(Method::getName)
+                    .map(method -> new MethodKey(method.getName(), method.getParameterTypes()))
                     .collect(Collectors.toSet());
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (methods.contains(method.getName())) {
-                Method declaredMethod = original.getClass().getDeclaredMethod(
-                        method.getName(),
-                        method.getParameterTypes()
-                );
-                if (declaredMethod.isAnnotationPresent(Log.class)) {
-                    System.out.println("executed method: calculation, param: " + Arrays.toString(args));
-                }
+            MethodKey methodKey = new MethodKey(method.getName(), method.getParameterTypes());
+            if (annotationMethods.contains(methodKey)) {
+                System.out.println("executed method: calculation, param: " + Arrays.toString(args));
+            }
+            return method.invoke(original, args);
+        }
+        record MethodKey(String name, Class<?>[] parameterTypes) {
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (!(o instanceof MethodKey methodKey)) return false;
+                return Objects.equals(name, methodKey.name) && Arrays.equals(parameterTypes, methodKey.parameterTypes);
             }
 
-            return method.invoke(original, args);
+            @Override
+            public int hashCode() {
+                int result = Objects.hash(name);
+                result = 31 * result + Arrays.hashCode(parameterTypes);
+                return result;
+            }
+
+            @Override
+            public String toString() {
+                return "MethodKey{" +
+                        "name='" + name + '\'' +
+                        ", parameterTypes=" + Arrays.toString(parameterTypes) +
+                        '}';
+            }
         }
     }
 

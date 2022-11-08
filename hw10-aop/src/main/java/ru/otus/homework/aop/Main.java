@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        TestLoggingInterface testLogging = Ioc.createTestLogging();
+        TestLoggingInterface testLogging = Ioc.createTestLogging(new TestLogging());
         testLogging.calculation(1);
         testLogging.calculation(Integer.valueOf(2));
         testLogging.calculation(3, Integer.valueOf(4));
