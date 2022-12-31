@@ -20,7 +20,7 @@ public class EntityConverterImpl<T> implements EntityConverter<T> {
     public T convert(ResultSet resultSet) {
         try {
             if (resultSet.next()) {
-                return extracted(resultSet);
+                return extract(resultSet);
             }
             return null;
         } catch (Exception e) {
@@ -33,7 +33,7 @@ public class EntityConverterImpl<T> implements EntityConverter<T> {
         try {
             ArrayList<T> list = new ArrayList<>();
             while (resultSet.next()) {
-                list.add(extracted(resultSet));
+                list.add(extract(resultSet));
             }
             return list;
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class EntityConverterImpl<T> implements EntityConverter<T> {
 
     }
 
-    private T extracted(ResultSet resultSet) {
+    private T extract(ResultSet resultSet) {
         try {
             Constructor<T> constructor = entityClassMetaData.getConstructor();
             T t = constructor.newInstance();

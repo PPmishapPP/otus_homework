@@ -19,30 +19,45 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     public EntityClassMetaDataImpl(Class<T> clazz) {
         try {
-            this.name = clazz.getSimpleName().toLowerCase();
-            this.constructor = clazz.getDeclaredConstructor();
-            this.allField = List.of(clazz.getDeclaredFields());
+            this.name = getName(clazz);
+            this.constructor = getConstructor(clazz);
+            this.allField = getAllField(clazz);
             this.fieldsWithoutId = new ArrayList<>(allField.size() - 1);
-            Field tempIdField = null;
-            for (Field field : allField) {
-                if (field.getAnnotation(Id.class) != null) {
-                    if (tempIdField == null) {
-                        tempIdField = field;
-                    } else {
-                        throw new MetaDataException("Должно быть только одно поле с аннотацией Id");
-                    }
-                } else {
-                    fieldsWithoutId.add(field);
-                }
-            }
-            if (tempIdField == null) {
-                throw new MetaDataException("Хотя бы одно поле должно быть помечено аннотацией Id");
-            }
-            this.idField = tempIdField;
-
+            this.idField = fillWithoutIdAndGetId(fieldsWithoutId, allField);
         } catch (Exception e) {
             throw new MetaDataException(e);
         }
+    }
+
+    private Field fillWithoutIdAndGetId(List<Field> fieldsWithoutId, List<Field> allField) {
+        Field tempIdField = null;
+        for (Field field : allField) {
+            if (field.getAnnotation(Id.class) != null) {
+                if (tempIdField == null) {
+                    tempIdField = field;
+                } else {
+                    throw new MetaDataException("Должно быть только одно поле с аннотацией Id");
+                }
+            } else {
+                fieldsWithoutId.add(field);
+            }
+        }
+        if (tempIdField == null) {
+            throw new MetaDataException("Хотя бы одно поле должно быть помечено аннотацией Id");
+        }
+        return tempIdField;
+    }
+
+    private List<Field> getAllField(Class<T> clazz) {
+        return List.of(clazz.getDeclaredFields());
+    }
+
+    private Constructor<T> getConstructor(Class<T> clazz) throws NoSuchMethodException {
+        return clazz.getDeclaredConstructor();
+    }
+
+    private String getName(Class<T> clazz) {
+        return clazz.getSimpleName().toLowerCase();
     }
 
     @Override
