@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -22,6 +24,13 @@ public class Client implements Cloneable {
     @Column(name = "name")
     private String name;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+    @OneToMany(mappedBy = "client", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Phone> phone;
+
     public Client(String name) {
         this.id = null;
         this.name = name;
@@ -32,9 +41,22 @@ public class Client implements Cloneable {
         this.name = name;
     }
 
+    public Client(Long id, String name, Address address, List<Phone> phone) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        phone.forEach(p -> p.setClient(this));
+        this.phone = phone;
+    }
+
     @Override
     public Client clone() {
-        return new Client(this.id, this.name);
+        return new Client(
+                this.id,
+                this.name,
+                Optional.ofNullable(this.address).map(Address::new).orElse(null),
+                phone.stream().map(Phone::new).toList()
+        );
     }
 
     @Override
@@ -42,6 +64,8 @@ public class Client implements Cloneable {
         return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", address=" + address +
+                ", phone=" + phone +
                 '}';
     }
 }
