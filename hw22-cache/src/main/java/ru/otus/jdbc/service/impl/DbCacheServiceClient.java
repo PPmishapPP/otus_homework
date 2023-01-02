@@ -1,6 +1,6 @@
 package ru.otus.jdbc.service.impl;
 
-import ru.otus.jdbc.cachehw.MyCache;
+import ru.otus.jdbc.cachehw.HwCache;
 import ru.otus.jdbc.model.Client;
 import ru.otus.jdbc.service.DBServiceClient;
 
@@ -10,9 +10,9 @@ import java.util.Optional;
 public class DbCacheServiceClient implements DBServiceClient {
 
     private final DBServiceClient serviceClient;
-    private final MyCache<Long, Client> myCache;
+    private final HwCache<Long, Client> myCache;
 
-    public DbCacheServiceClient(DBServiceClient serviceClient, MyCache<Long, Client> myCache) {
+    public DbCacheServiceClient(DBServiceClient serviceClient, HwCache<Long, Client> myCache) {
         this.serviceClient = serviceClient;
         this.myCache = myCache;
     }
