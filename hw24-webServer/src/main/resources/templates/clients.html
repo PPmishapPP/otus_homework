@@ -2,17 +2,6 @@
 <head>
     <title>Клиенты</title>
     <meta charset="utf-8"/>
-    <script>
-        function getUserById() {
-            const userIdTextBox = document.getElementById('userIdTextBox');
-            const userDataContainer = document.getElementById('userDataContainer');
-            const id = userIdTextBox.value;
-            //fetch('api/user?id=' + id)
-            fetch('api/user/' + id)
-                .then(response => response.json())
-                .then(user => userDataContainer.innerHTML = JSON.stringify(user));
-        }
-    </script>
 </head>
 
 <body>
@@ -27,7 +16,7 @@
     <input type="submit" value="Создать">
 </form>
 
-<h4>Случайный пользователь</h4>
+<h4>Список клиентов</h4>
 <table style="width: 500px">
     <thead>
     <tr>
