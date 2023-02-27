@@ -31,7 +31,11 @@ public class SensorDataProcessorBuffered implements SensorDataProcessor {
         if (dataBuffer.size() >= bufferSize) {
             flush();
         }
-        dataBuffer.add(data);
+        try {
+            dataBuffer.put(data);
+        } catch (InterruptedException e) {
+            flush();
+        }
 
     }
 
