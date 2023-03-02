@@ -22,6 +22,7 @@ public class MessageController {
     private static final Logger logger = LoggerFactory.getLogger(MessageController.class);
 
     private static final String TOPIC_TEMPLATE = "/topic/response.";
+    private static final String EVIL_ROOM_ID = "1408";
 
     private final WebClient datastoreClient;
     private final SimpMessagingTemplate template;
@@ -34,11 +35,20 @@ public class MessageController {
     @MessageMapping("/message.{roomId}")
     public void getMessage(@DestinationVariable String roomId, Message message) {
         logger.info("get message:{}, roomId:{}", message, roomId);
-        saveMessage(roomId, message)
-                .subscribe(msgId -> logger.info("message send id:{}", msgId));
+
+        String messageStr;
+        if (EVIL_ROOM_ID.equals(roomId)) {
+            messageStr = "В этой комнате обитает чистое зло. Не пытайтесь ничего писать, вас всё равно не услышат!";
+        } else {
+            messageStr = message.messageStr();
+            saveMessage(roomId, message)
+                    .subscribe(msgId -> logger.info("message send id:{}", msgId));
+            template.convertAndSend(String.format("%s%s", TOPIC_TEMPLATE, EVIL_ROOM_ID),
+                    new Message(HtmlUtils.htmlEscape(messageStr)));
+        }
 
         template.convertAndSend(String.format("%s%s", TOPIC_TEMPLATE, roomId),
-                new Message(HtmlUtils.htmlEscape(message.messageStr())));
+                new Message(HtmlUtils.htmlEscape(messageStr)));
     }
 
 
@@ -74,7 +84,9 @@ public class MessageController {
     }
 
     private Flux<Message> getMessagesByRoomId(long roomId) {
-        return datastoreClient.get().uri(String.format("/msg/%s", roomId))
+        String uri = EVIL_ROOM_ID.equals(String.valueOf(roomId)) ? "/msg" : String.format("/msg/%s", roomId);
+
+        return datastoreClient.get().uri(uri)
                 .accept(MediaType.APPLICATION_NDJSON)
                 .exchangeToFlux(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
