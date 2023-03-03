@@ -9,7 +9,7 @@ public class MyStreamObserver implements StreamObserver<Response> {
 
     @Override
     public void onNext(Response value) {
-        this.currentValue = value.getCurrentValue();
+        setCurrentValue(value.getCurrentValue());
         System.out.println("число от сервера: " + currentValue);
     }
 
@@ -23,7 +23,11 @@ public class MyStreamObserver implements StreamObserver<Response> {
         //empty
     }
 
-    public int poll() {
+    private synchronized void setCurrentValue(int value) {
+        this.currentValue = value;
+    }
+
+    public synchronized int poll() {
         int i = currentValue;
         currentValue = 0;
         return i;
